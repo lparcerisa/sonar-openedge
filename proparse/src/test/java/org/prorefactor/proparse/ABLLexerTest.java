@@ -311,7 +311,7 @@ public class ABLLexerTest {
     // SESSION:FIRST-SERVER-SOCKET:HANDLE.
     assertEquals(((ProToken) lexer.nextToken()).getNodeType(), ABLNodeType.SESSION);
     assertEquals(((ProToken) lexer.nextToken()).getNodeType(), ABLNodeType.OBJCOLON);
-    assertEquals(((ProToken) lexer.nextToken()).getNodeType(), ABLNodeType.ID);
+    assertEquals(((ProToken) lexer.nextToken()).getNodeType(), ABLNodeType.FIRSTSERVERSOCKET);
     assertEquals(((ProToken) lexer.nextToken()).getNodeType(), ABLNodeType.OBJCOLON);
     assertEquals(((ProToken) lexer.nextToken()).getNodeType(), ABLNodeType.HANDLE);
     assertEquals(((ProToken) lexer.nextToken()).getNodeType(), ABLNodeType.PERIOD);
@@ -342,7 +342,7 @@ public class ABLLexerTest {
     assertEquals(((ProToken) lexer.nextToken()).getNodeType(), ABLNodeType.DOUBLECOLON);
     assertEquals(((ProToken) lexer.nextToken()).getNodeType(), ABLNodeType.ID);
     assertEquals(((ProToken) lexer.nextToken()).getNodeType(), ABLNodeType.OBJCOLON);
-    assertEquals(((ProToken) lexer.nextToken()).getNodeType(), ABLNodeType.ID);
+    assertEquals(((ProToken) lexer.nextToken()).getNodeType(), ABLNodeType.SETCALLBACK);
     assertEquals(((ProToken) lexer.nextToken()).getNodeType(), ABLNodeType.LEFTPAREN);
     assertEquals(((ProToken) lexer.nextToken()).getNodeType(), ABLNodeType.RIGHTPAREN);
     assertEquals(((ProToken) lexer.nextToken()).getNodeType(), ABLNodeType.PERIOD);
@@ -565,7 +565,7 @@ public class ABLLexerTest {
 
     ABLLexer lexer3 = new ABLLexer(session, ByteSource.wrap("USERID USER-ID ".getBytes()), "file.txt");
     assertNextTokenTypeWS(lexer3, ABLNodeType.USERID, "USERID");
-    assertNextTokenTypeWS(lexer3, ABLNodeType.ID, "USER-ID");
+    assertNextTokenTypeWS(lexer3, ABLNodeType.USERID2, "USER-ID");
   }
 
   @Test
