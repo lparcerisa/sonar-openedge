@@ -2545,7 +2545,7 @@ public class JPNodeVisitor extends ProparseBaseVisitor<Builder> {
 
   @Override
   public Builder visitSuperStatement(SuperStatementContext ctx) {
-    Builder builder = createTree(ctx, ABLNodeType.METHOD_REF).setExpression(true);
+    Builder builder = createTree(ctx, ABLNodeType.LOCAL_METHOD_REF).setExpression(true);
     return new Builder(ABLNodeType.EXPR_STATEMENT).setStatement().setDown(builder).setRuleNode(ctx);
   }
 
@@ -2656,7 +2656,7 @@ public class JPNodeVisitor extends ProparseBaseVisitor<Builder> {
 
   @Override
   public Builder visitThisObjectStatement(ThisObjectStatementContext ctx) {
-    Builder builder = createTree(ctx, ABLNodeType.METHOD_REF).setExpression(true);
+    Builder builder = createTree(ctx, ABLNodeType.LOCAL_METHOD_REF).setExpression(true);
     return new Builder(ABLNodeType.EXPR_STATEMENT).setStatement().setDown(builder).setRuleNode(ctx);
   }
 

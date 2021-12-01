@@ -26,7 +26,7 @@ import eu.rssw.pct.elements.ITypeInfo;
 /**
  * Expression node: <code>methodName(parameters)</code> (only in classes)
  */
-public class LocalMethodCallNode extends ExpressionNode {
+public class LocalMethodCallNode extends ExpressionNode implements IMethodCallExpression {
   private String methodName = "";
   private String xrefSig = "";
   private IMethodElement method;
@@ -36,14 +36,17 @@ public class LocalMethodCallNode extends ExpressionNode {
     this.methodName = Strings.nullToEmpty(methodName);
   }
 
+  @Override
   public String getMethodName() {
     return methodName;
   }
 
+  @Override
   public void setXrefSig(String xrefSig) {
     this.xrefSig = xrefSig;
   }
 
+  @Override
   public String getXrefSig() {
     return xrefSig;
   }
@@ -59,11 +62,7 @@ public class LocalMethodCallNode extends ExpressionNode {
   @Override
   public DataType getDataType() {
     ProgramRootNode root = getTopLevelParent();
-    if (root == null)
-      return DataType.NOT_COMPUTED;
-    ITypeInfo info = root.getParseUnit().getTypeInfo();
-    if (root.getParseUnit().isClass() && (info == null))
-      info = root.getParserSupport().getProparseSession().getTypeInfo("Progress.Lang.Object");
+    ITypeInfo info = getCalleeTypeInfo();
     while (info != null) {
       for (IMethodElement elem : info.getMethods()) {
         if (elem.getName().equalsIgnoreCase(methodName))
@@ -73,6 +72,23 @@ public class LocalMethodCallNode extends ExpressionNode {
     }
 
     return DataType.NOT_COMPUTED;
+  }
+
+  @Override
+  public DataType getLeftPart() {
+    return new DataType(getCalleeTypeInfo().getTypeName());
+  }
+
+  private ITypeInfo getCalleeTypeInfo() {
+    ProgramRootNode root = getTopLevelParent();
+    if (root == null)
+      return null;
+
+    ITypeInfo info = root.getParserSupport().getProparseSession().getTypeInfo(root.getParserSupport().getClassName());
+    if (info != null)
+      return info;
+    else 
+      return root.getParserSupport().getProparseSession().getTypeInfo("Progress.Lang.Object");
   }
 
 }

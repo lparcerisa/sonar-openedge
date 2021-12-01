@@ -27,7 +27,7 @@ import eu.rssw.pct.elements.PrimitiveDataType;
 /**
  * Expression node: <code>&lt;expr&gt;:methodName(parameters)</code>
  */
-public class MethodCallNode extends ExpressionNode {
+public class MethodCallNode extends ExpressionNode implements IMethodCallExpression {
   private String methodName = "";
   private String xrefSig = "";
   private IMethodElement method;
@@ -37,14 +37,17 @@ public class MethodCallNode extends ExpressionNode {
     this.methodName = Strings.nullToEmpty(methodName);
   }
 
+  @Override
   public String getMethodName() {
     return methodName;
   }
 
+  @Override
   public void setXrefSig(String xrefSig) {
     this.xrefSig = xrefSig;
   }
 
+  @Override
   public String getXrefSig() {
     return xrefSig;
   }
@@ -77,6 +80,15 @@ public class MethodCallNode extends ExpressionNode {
     }
 
     return DataType.NOT_COMPUTED;
+  }
+
+  @Override
+  public DataType getLeftPart() {
+    if (getFirstChild().asIExpression() == null) {
+      System.out.println("plop");
+      return null;
+    } else
+    return getFirstChild().asIExpression().getDataType();
   }
 
 }

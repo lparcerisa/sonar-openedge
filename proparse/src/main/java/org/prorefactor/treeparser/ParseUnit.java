@@ -45,6 +45,7 @@ import org.prorefactor.core.IConstants;
 import org.prorefactor.core.JPNode;
 import org.prorefactor.core.JPNodeMetrics;
 import org.prorefactor.core.nodetypes.IExpression;
+import org.prorefactor.core.nodetypes.IMethodCallExpression;
 import org.prorefactor.core.nodetypes.LocalMethodCallNode;
 import org.prorefactor.core.nodetypes.MethodCallNode;
 import org.prorefactor.core.nodetypes.ProgramRootNode;
@@ -503,37 +504,32 @@ public class ParseUnit {
 
   private void injectInvokeNodes(CrossReference xref) {
     for (JPNode node : topNode.query(ABLNodeType.LOCAL_METHOD_REF, ABLNodeType.METHOD_REF)) {
-      int lineNumber = node.getStatement().firstNaturalChild().getLine();
-      String clzName = "";
-      String methodName = "";
-      if (node.getNodeType() == ABLNodeType.LOCAL_METHOD_REF) { 
-        methodName = ((LocalMethodCallNode) node).getMethodName();
-        Optional<Reference> ref = xref.getSource().get(0).getReference().stream().filter(it -> "CLASS".equals(it.getReferenceType())).findFirst();
-        if (ref.isPresent())
-          clzName = ref.get().getObjectIdentifier();
-      }
-      else  {
-        methodName = ((MethodCallNode) node).getMethodName();
-        IExpression expr = node.getFirstChild().asIExpression();
-        DataType dt = expr.getDataType();
-        if (dt.getPrimitive() == PrimitiveDataType.CLASS) {
-          clzName = dt.getClassName();
-        }
-      }
-      final String srchStr = clzName + ":" + methodName;
-      Optional<Source> src = xref.getSource().stream().filter(it -> node.firstNaturalChild().getFileIndex() == 0 ? it.getFileNum() == 1: 
-      node.getFileName().replace('\\', '/').equalsIgnoreCase(it.getFileName().replace('\\', '/'))).findFirst();
+      IMethodCallExpression expr = (IMethodCallExpression) node;
+      if ((expr.getLeftPart().getPrimitive() != PrimitiveDataType.CLASS) || expr.getMethodName().isEmpty())
+        continue;
+      // TODO Handle super and this-object (methodName.isEmpty())
+
+      JPNode stmt = node.getStatement();
+      int lineNumber = stmt.firstNaturalChild().getLine();
+      // Statement in THEN or ELSE (without DO) is reported at the IF line number
+      ABLNodeType parentStmtType = stmt.asIStatement().getParentStatement().asJPNode().getNodeType();
+      if ((parentStmtType == ABLNodeType.THEN) || (parentStmtType == ABLNodeType.ELSE))
+        lineNumber = stmt.asIStatement().getParentStatement().getParentStatement().asJPNode().getLine();
+
+      final int lineNum = lineNumber;
+      final String srchStr = expr.getLeftPart().getClassName() + ":" + expr.getMethodName();
+      Optional<Source> src = xref.getSource().stream().filter(it -> node.firstNaturalChild().getFileIndex() == 0
+          ? it.getFileNum() == 1 : node.firstNaturalChild().getFileName().replace('\\', '/').equalsIgnoreCase(
+              it.getFileName().replace('\\', '/'))).findFirst();
       if (src.isPresent()) {
-        Optional<Reference> ref2 = src.get().getReference().stream().filter(it -> "INVOKE".equals(it.getReferenceType()) && srchStr.equalsIgnoreCase(it.getObjectIdentifier()) && (it.getLineNum() == lineNumber)).findFirst();
+        Optional<Reference> ref2 = src.get().getReference().stream().filter(it -> "INVOKE".equals(it.getReferenceType())
+            && srchStr.equalsIgnoreCase(it.getObjectIdentifier()) && (it.getLineNum() == lineNum)).findFirst();
         if (ref2.isPresent()) {
-          String ss = srchStr+ "(" + ref2.get().getObjectContext() + ")";
-          if (node.getNodeType() == ABLNodeType.LOCAL_METHOD_REF) { 
-            ((LocalMethodCallNode) node).setXrefSig(ss);
-          } else {
-            ((MethodCallNode) node).setXrefSig(ss);
-          }
+          String ss = srchStr + "(" + ref2.get().getObjectContext() + ")";
+          expr.setXrefSig(ss);
         }
       }
+      // LOGGER.info("Node {}::{} ==> {}", expr.getLeftPart().getClassName(), expr.getMethodName(), expr.getXrefSig());
     }
   }
 
