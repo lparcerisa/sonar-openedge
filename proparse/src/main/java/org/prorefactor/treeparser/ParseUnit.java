@@ -44,10 +44,7 @@ import org.prorefactor.core.ABLNodeType;
 import org.prorefactor.core.IConstants;
 import org.prorefactor.core.JPNode;
 import org.prorefactor.core.JPNodeMetrics;
-import org.prorefactor.core.nodetypes.IExpression;
 import org.prorefactor.core.nodetypes.IMethodCallExpression;
-import org.prorefactor.core.nodetypes.LocalMethodCallNode;
-import org.prorefactor.core.nodetypes.MethodCallNode;
 import org.prorefactor.core.nodetypes.ProgramRootNode;
 import org.prorefactor.core.nodetypes.RecordNameNode;
 import org.prorefactor.macrolevel.IncludeRef;
@@ -76,7 +73,6 @@ import com.progress.xref.CrossReference;
 import com.progress.xref.CrossReference.Source;
 import com.progress.xref.CrossReference.Source.Reference;
 
-import eu.rssw.pct.elements.DataType;
 import eu.rssw.pct.elements.ITypeInfo;
 import eu.rssw.pct.elements.PrimitiveDataType;
 
