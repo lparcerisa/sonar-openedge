@@ -23,6 +23,7 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -43,6 +44,9 @@ import org.prorefactor.core.ABLNodeType;
 import org.prorefactor.core.IConstants;
 import org.prorefactor.core.JPNode;
 import org.prorefactor.core.JPNodeMetrics;
+import org.prorefactor.core.nodetypes.IExpression;
+import org.prorefactor.core.nodetypes.LocalMethodCallNode;
+import org.prorefactor.core.nodetypes.MethodCallNode;
 import org.prorefactor.core.nodetypes.ProgramRootNode;
 import org.prorefactor.core.nodetypes.RecordNameNode;
 import org.prorefactor.macrolevel.IncludeRef;
@@ -71,7 +75,9 @@ import com.progress.xref.CrossReference;
 import com.progress.xref.CrossReference.Source;
 import com.progress.xref.CrossReference.Source.Reference;
 
+import eu.rssw.pct.elements.DataType;
 import eu.rssw.pct.elements.ITypeInfo;
+import eu.rssw.pct.elements.PrimitiveDataType;
 
 /**
  * Executes the lexer, parser and semantic analysis, then provides access to the Abstract Syntax Tree and to the
@@ -494,6 +500,43 @@ public class ParseUnit {
       }
     }
   }
+
+  private void injectInvokeNodes(CrossReference xref) {
+    for (JPNode node : topNode.query(ABLNodeType.LOCAL_METHOD_REF, ABLNodeType.METHOD_REF)) {
+      int lineNumber = node.getStatement().firstNaturalChild().getLine();
+      String clzName = "";
+      String methodName = "";
+      if (node.getNodeType() == ABLNodeType.LOCAL_METHOD_REF) { 
+        methodName = ((LocalMethodCallNode) node).getMethodName();
+        Optional<Reference> ref = xref.getSource().get(0).getReference().stream().filter(it -> "CLASS".equals(it.getReferenceType())).findFirst();
+        if (ref.isPresent())
+          clzName = ref.get().getObjectIdentifier();
+      }
+      else  {
+        methodName = ((MethodCallNode) node).getMethodName();
+        IExpression expr = node.getFirstChild().asIExpression();
+        DataType dt = expr.getDataType();
+        if (dt.getPrimitive() == PrimitiveDataType.CLASS) {
+          clzName = dt.getClassName();
+        }
+      }
+      final String srchStr = clzName + ":" + methodName;
+      Optional<Source> src = xref.getSource().stream().filter(it -> node.firstNaturalChild().getFileIndex() == 0 ? it.getFileNum() == 1: 
+      node.getFileName().replace('\\', '/').equalsIgnoreCase(it.getFileName().replace('\\', '/'))).findFirst();
+      if (src.isPresent()) {
+        Optional<Reference> ref2 = src.get().getReference().stream().filter(it -> "INVOKE".equals(it.getReferenceType()) && srchStr.equalsIgnoreCase(it.getObjectIdentifier()) && (it.getLineNum() == lineNumber)).findFirst();
+        if (ref2.isPresent()) {
+          String ss = srchStr+ "(" + ref2.get().getObjectContext() + ")";
+          if (node.getNodeType() == ABLNodeType.LOCAL_METHOD_REF) { 
+            ((LocalMethodCallNode) node).setXrefSig(ss);
+          } else {
+            ((MethodCallNode) node).setXrefSig(ss);
+          }
+        }
+      }
+    }
+  }
+
   private void finalizeXrefInfo() {
     if ((topNode == null) || (xref == null))
       return;
@@ -507,6 +550,7 @@ public class ParseUnit {
         }
       }
     }
+    injectInvokeNodes(xref);
   }
 
   public void attachTypeInfo(ITypeInfo unit) {

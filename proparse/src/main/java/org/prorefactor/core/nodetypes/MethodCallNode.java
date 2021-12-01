@@ -20,6 +20,7 @@ import org.prorefactor.core.ProToken;
 import com.google.common.base.Strings;
 
 import eu.rssw.pct.elements.DataType;
+import eu.rssw.pct.elements.IMethodElement;
 import eu.rssw.pct.elements.ITypeInfo;
 import eu.rssw.pct.elements.PrimitiveDataType;
 
@@ -28,6 +29,8 @@ import eu.rssw.pct.elements.PrimitiveDataType;
  */
 public class MethodCallNode extends ExpressionNode {
   private String methodName = "";
+  private String xrefSig = "";
+  private IMethodElement method;
 
   public MethodCallNode(ProToken t, JPNode parent, int num, boolean hasChildren, String methodName) {
     super(t, parent, num, hasChildren);
@@ -36,6 +39,22 @@ public class MethodCallNode extends ExpressionNode {
 
   public String getMethodName() {
     return methodName;
+  }
+
+  public void setXrefSig(String xrefSig) {
+    this.xrefSig = xrefSig;
+  }
+
+  public String getXrefSig() {
+    return xrefSig;
+  }
+
+  public void setMethod(IMethodElement method) {
+    this.method = method;
+  }
+
+  public IMethodElement getMethod() {
+    return method;
   }
 
   @Override

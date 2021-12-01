@@ -83,6 +83,10 @@ public class FieldRefNode extends ExpressionNode {
    */
   @Override
   public DataType getDataType() {
+    if (qualifier == ContextQualifier.STATIC) {
+      String clzName = getTopLevelParent().getParserSupport().lookupClassName(getFirstChild().getText());
+      return new DataType(clzName);
+    }
     if (getSymbol() instanceof Primative) {
       DataType dataType = ((Primative) getSymbol()).getDataType();
       return dataType == null ? DataType.NOT_COMPUTED : dataType;

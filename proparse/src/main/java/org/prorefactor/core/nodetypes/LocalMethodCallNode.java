@@ -28,6 +28,8 @@ import eu.rssw.pct.elements.ITypeInfo;
  */
 public class LocalMethodCallNode extends ExpressionNode {
   private String methodName = "";
+  private String xrefSig = "";
+  private IMethodElement method;
 
   public LocalMethodCallNode(ProToken t, JPNode parent, int num, boolean hasChildren, String methodName) {
     super(t, parent, num, hasChildren);
@@ -36,6 +38,22 @@ public class LocalMethodCallNode extends ExpressionNode {
 
   public String getMethodName() {
     return methodName;
+  }
+
+  public void setXrefSig(String xrefSig) {
+    this.xrefSig = xrefSig;
+  }
+
+  public String getXrefSig() {
+    return xrefSig;
+  }
+
+  public void setMethod(IMethodElement method) {
+    this.method = method;
+  }
+
+  public IMethodElement getMethod() {
+    return method;
   }
 
   @Override
