@@ -683,6 +683,21 @@ public class PostLexerTest {
     assertEquals(tok.getText(), "prolint-nowarn(use-index)");
   }
 
+  @Test
+  public void test24() {
+    Injector injector = Guice.createInjector(new UnitTestWindowsModule());
+    RefactorSession session = injector.getInstance(RefactorSession.class);
+    ParseUnit unit = new ParseUnit(new File(SRC_DIR, "lexer24.p"), session);
+    TokenSource src = unit.preprocess();
+    src.nextToken();
+    src.nextToken();
+    src.nextToken();
+    src.nextToken();
+    src.nextToken();
+    src.nextToken();
+    src.nextToken();
+  }
+
   /**
    * Utility method for tests, returns next node of given type
    */

@@ -1,0 +1,8 @@
+&IF "{&P2}" = "":U &THEN
+  &MESSAGE XXX
+&ENDIF
+
+DEFINE VARIABLE xxx as CHARACTER.
+IF xxx <> {&P2} THEN DO:
+
+END.
