@@ -1374,4 +1374,14 @@ public class TreeParser03Test {
     assertNotNull(prm2.getSymbol());
     assertEquals(prm2.getSymbol().getName(), "tt1");
   }
+
+  @Test
+  public void test40() {
+    ParseUnit unit = new ParseUnit(new File("src/test/resources/treeparser03/test40.p"), session);
+    assertNull(unit.getTopNode());
+    unit.treeParser01();
+    assertFalse(unit.hasSyntaxError());
+    assertNotNull(unit.getTopNode());
+    assertNotNull(unit.getRootScope());
+  }
 }
